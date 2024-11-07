@@ -13,6 +13,8 @@ provider "azurerm" {
   client_id       = var.client_id
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
+
+  storage_use_azuread = true
 }
 
 
@@ -44,6 +46,8 @@ resource "azurerm_storage_account" "tfstate" {
   account_tier             = "Standard"
   account_replication_type = "GRS"
 
+  shared_access_key_enabled = false
+
   lifecycle {
     ignore_changes = [
       tags,
@@ -55,6 +59,41 @@ resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
+}
+
+resource "terraform_data" "always_run" {
+  input = timestamp()
+}
+
+resource "null_resource" "sanitize_state" {
+
+  provisioner "local-exec" {
+    command = <<EOT
+      # Check if jq is installed
+      if ! command -v jq &> /dev/null; then
+        echo "jq is required but was not found. Please install jq to continue and then re-run apply."
+        exit 1
+      fi
+      
+      # Sanitize the state file of private access keys:
+      jq 'del(.resources[].instances[].attributes [
+        "primary_access_key",
+        "primary_connection_string",
+        "primary_blob_connection_string",
+        "secondary_access_key",
+        "secondary_connection_string",
+        "secondary_blob_connection_string"
+      ])' terraform.tfstate > sanitized.tfstate
+      mv sanitized.tfstate terraform.tfstate
+    EOT
+  }
+
+  depends_on = [azurerm_storage_container.tfstate]
+
+
+  lifecycle {
+    replace_triggered_by = [ terraform_data.always_run ]
+  }
 }
 
 output "resource_group_name" {
