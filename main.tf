@@ -67,6 +67,8 @@ resource "terraform_data" "always_run" {
 
 resource "null_resource" "sanitize_state" {
 
+  count = var.remove_secrets_from_state ? 1 : 0
+
   provisioner "local-exec" {
     command = <<EOT
       # Check if jq is installed
