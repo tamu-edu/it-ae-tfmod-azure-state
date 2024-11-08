@@ -39,3 +39,9 @@ variable "tenant_id" {
   description = "The tenant ID to use for the Terraform state"
   default     = null
 }
+
+variable "remove_secrets_from_state" {
+  type = bool
+  description = "Whether to sanitize tfstate of access keys automatically created on created resources. Keys remain untouched on created assets."
+  default = true
+}
