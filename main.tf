@@ -17,7 +17,6 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-
 resource "random_string" "storage_account_name" {
   length  = 14
   special = false
@@ -59,6 +58,12 @@ resource "azurerm_storage_account" "tfstate" {
   }
 }
 
+resource "azurerm_user_assigned_identity" "terraform_backend_identity" {
+  name                = "terraform-backend-identity"
+  resource_group_name = azurerm_resource_group.tfstate.name
+  location            = azurerm_resource_group.tfstate.location
+}
+
 resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
   storage_account_name  = azurerm_storage_account.tfstate.name
@@ -66,9 +71,9 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_access" {
-  principal_id   = "916c9e0d-a57f-47a1-8c07-a75b1f2d621d"  # Entra ID Object ID for the user or group
-  role_definition_name = "Storage Blob Data Contributor"  # Allows read/write access to blobs
-  scope          = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/tfstate"
+  principal_id          = azurerm_user_assigned_identity.terraform_backend_identity.principal_id
+  role_definition_name  = "Storage Blob Data Contributor"
+  scope                 = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/tfstate"
 }
 
 resource "terraform_data" "always_run" {
