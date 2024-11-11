@@ -48,6 +48,10 @@ resource "azurerm_storage_account" "tfstate" {
 
   shared_access_key_enabled = false
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     ignore_changes = [
       tags,
@@ -59,6 +63,12 @@ resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
+}
+
+resource "azurerm_role_assignment" "tfstate_access" {
+  principal_id   = "916c9e0d-a57f-47a1-8c07-a75b1f2d621d"  # Entra ID Object ID for the user or group
+  role_definition_name = "Storage Blob Data Contributor"  # Allows read/write access to blobs
+  scope          = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/tfstate"
 }
 
 resource "terraform_data" "always_run" {
