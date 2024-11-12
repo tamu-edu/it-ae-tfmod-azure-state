@@ -47,9 +47,9 @@ resource "azurerm_storage_account" "tfstate" {
 
   shared_access_key_enabled = false
 
-  identity {
-    type = "SystemAssigned"
-  }
+  # identity {
+  #   type = "SystemAssigned"
+  # }
 
   lifecycle {
     ignore_changes = [
@@ -58,10 +58,20 @@ resource "azurerm_storage_account" "tfstate" {
   }
 }
 
-resource "azurerm_user_assigned_identity" "terraform_backend_identity" {
-  name                = "terraform-backend-identity"
-  resource_group_name = azurerm_resource_group.tfstate.name
-  location            = azurerm_resource_group.tfstate.location
+resource "azuread_group" "terraform_access_group" {
+  display_name = "${azurerm_resource_group.tfstate.name}-tfstate-backend"
+  security_enabled = true
+  # Any entra user ID other than original creator.
+  # @see https://github.com/hashicorp/terraform-provider-azuread/issues/624#issuecomment-940984433:
+  owners = [
+    "fba7fc62-a397-4d14-b310-cd760f937278",
+    "5bcba3a0-11fb-4428-a932-9839087bdd2a",
+  ]
+  
+  # @see https://github.com/hashicorp/terraform-provider-azuread/issues/624#issuecomment-942280276
+  # lifecycle {
+  #   ignore_changes = [ "owners" ]
+  # }
 }
 
 resource "azurerm_storage_container" "tfstate" {
@@ -71,7 +81,7 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_access" {
-  principal_id          = azurerm_user_assigned_identity.terraform_backend_identity.principal_id
+  principal_id          = azuread_group.terraform_access_group.object_id
   role_definition_name  = "Storage Blob Data Contributor"
   scope                 = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/tfstate"
 }
