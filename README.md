@@ -2,6 +2,13 @@
 This is a terraform module for initializing a terraform state backend in Azure. 
 
 By default, it creates a resource group named `terraform-state`, a storage account with a unique name, and a container named "terraform-state", 
+
+Azure will not auto-assign sufficient access privilege to your az cli user running terraform automatically. Follow this environment backend module's apply with authenticated:
+```
+az role assignment create --assignee PRINCIPAL_ID --role "Storage Blob Data Contributor" --scope $(terraform output -raw storage_role_access_scope -state=PATH_TO_TFSTATE)
+```
+While the az role assignment is very quick, it may take up to ten minutes for your principal to gain role access to this resource (see [learn.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access](https://learn.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access?tabs=azure-cli#:~:text=When%20you%20assign%20roles%20or%20remove%20role%20assignments%2C%20it%20can%20take%20up%20to%2010%20minutes%20for%20changes%20to%20take%20effect.)).
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
