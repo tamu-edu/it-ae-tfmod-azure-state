@@ -6,7 +6,7 @@ By default, it creates a resource group named `terraform-state`, a storage accou
 
 ## Example usage
 
-A common pattern for using this is to create a folder within your terraform IaC project named `terraform-state` containing a `main.tf` like:
+A common pattern for using this is to create a folder within your terraform IaC project for setting up your environment, such as `/environments/{env_name}/setup`, containing a `main.tf` like:
 
 ```
 module "state_backend" {
@@ -35,13 +35,16 @@ output "storage_account_name" {
 
 To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require.
 
+> [!CAUTION]
+> The terraform statefile with an Azure storage account resource will contain the initial storage account access keys. It is best practice to _disable_ access key access in favor of Entra ID authentication for your storage accounts. Do not commit the statefile until either the access keys are removed, rotated, or access keys disabled.
+
 Consider adding the following to your parent terraform IaC project `.gitignore` file:
 ```
 # .tfstate files
 *.tfstate
 *.tfstate.*
-!terraform-state/*.tfstate
-!terraform-state/*.tfstate.*
+!environments/*/setup/*.tfstate
+!environments/*/setup/*.tfstate.*
 ```
 This will ignore the `.tfstate` file in your project, which will use remote storage, but retain the `.tfstate` for the remote tfstate infrastructure.
 
