@@ -17,7 +17,6 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-
 resource "random_string" "storage_account_name" {
   length  = 14
   special = false
@@ -26,6 +25,7 @@ resource "random_string" "storage_account_name" {
 
 locals {
   storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
+  tfstate_role_access_scope = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/tfstate"
 }
 
 resource "azurerm_resource_group" "tfstate" {
@@ -108,4 +108,8 @@ output "storage_account_name" {
 
 output "container_name" {
   value = azurerm_storage_container.tfstate.name
+}
+
+output "tfstate_role_access_scope" {
+  value = local.tfstate_role_access_scope
 }
