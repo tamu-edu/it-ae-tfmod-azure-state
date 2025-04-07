@@ -48,19 +48,24 @@ Consider adding the following to your parent terraform IaC project `.gitignore` 
 ```
 This will ignore the `.tfstate` file in your project, which will use remote storage, but retain the `.tfstate` for the remote tfstate infrastructure.
 
+> [!NOTE]
+> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use.
+
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | =4.26.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | =4.26.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
 
@@ -70,10 +75,12 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
-| [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
-| [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
+| [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/resource_group) | resource |
+| [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
+| [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
+| [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
 ## Inputs
 
@@ -82,8 +89,9 @@ No modules.
 | <a name="input_client_id"></a> [client\_id](#input\_client\_id) | The client ID to use for authenticating to Azure. Terraform authentication will overwrite this. | `string` | `null` | no |
 | <a name="input_container_name"></a> [container\_name](#input\_container\_name) | The name of the storage container to use for the Terraform state | `string` | `"terraform-state"` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to use for the Terraform state | `string` | `"centralus"` | no |
-| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state | `string` | `"terraform-state"` | no |
 | <a name="input_remove_secrets_from_state"></a> [remove\_secrets\_from\_state](#input\_remove\_secrets\_from\_state) | Whether to sanitize tfstate of access keys automatically created on created resources. Actual, assigned keys remain untouched on created assets. | `bool` | `true` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state | `string` | `"terraform-state"` | no |
+| <a name="input_resource_provider_registrations"></a> [resource\_provider\_registrations](#input\_resource\_provider\_registrations) | Set to 'none' if using a limited user without permission to do provider registrations | `string` | `null` | no |
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints. | `string` | `null` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | The subscription ID to use for the Terraform state | `string` | `null` | no |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | The tenant ID to use for the Terraform state | `string` | `null` | no |

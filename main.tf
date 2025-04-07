@@ -3,12 +3,13 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "=4.26.0"
     }
   }
 }
 
 provider "azurerm" {
+  resource_provider_registrations = var.resource_provider_registrations
   features {}
   client_id       = var.client_id
   subscription_id = var.subscription_id
