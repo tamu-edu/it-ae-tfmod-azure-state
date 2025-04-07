@@ -30,6 +30,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "tfstate" {
+  count =   try(var.create_resource_group ? 1 : 0, 0) 
   name     = var.resource_group_name
   location = var.location
 
@@ -40,10 +41,23 @@ resource "azurerm_resource_group" "tfstate" {
   }
 }
 
+data "azurerm_resource_group" "tfstate" {
+  count =   try(var.create_resource_group ? 0 : 1, 1) 
+  name     = var.resource_group_name
+}
+
 resource "azurerm_storage_account" "tfstate" {
   name                     = local.storage_account_name
-  resource_group_name      = azurerm_resource_group.tfstate.name
-  location                 = azurerm_resource_group.tfstate.location
+
+  # --- Conditional Attributes ---
+  # If create_resource_group is true, use the name from the created resource (at index 0).
+  # Otherwise, use the name from the data source (at index 0).
+  resource_group_name    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
+
+  # If create_resource_group is true, use the location from the created resource (at index 0).
+  # Otherwise, use the location from the data source (at index 0).
+  location               = var.create_resource_group ? azurerm_resource_group.tfstate[0].location : data.azurerm_resource_group.tfstate[0].location
+  # --- End Conditional Attributes ---
   account_tier             = "Standard"
   account_replication_type = "GRS"
 
@@ -100,7 +114,7 @@ resource "null_resource" "sanitize_state" {
 }
 
 output "resource_group_name" {
-  value = azurerm_resource_group.tfstate.name
+  value    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
 }
 
 output "storage_account_name" {

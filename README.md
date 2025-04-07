@@ -49,7 +49,7 @@ Consider adding the following to your parent terraform IaC project `.gitignore` 
 This will ignore the `.tfstate` file in your project, which will use remote storage, but retain the `.tfstate` for the remote tfstate infrastructure.
 
 > [!NOTE]
-> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use.
+> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you.
 
 ## Requirements
 
@@ -62,9 +62,9 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | =4.26.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.26.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
@@ -81,6 +81,7 @@ No modules.
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/resource_group) | data source |
 
 ## Inputs
 
@@ -88,6 +89,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_client_id"></a> [client\_id](#input\_client\_id) | The client ID to use for authenticating to Azure. Terraform authentication will overwrite this. | `string` | `null` | no |
 | <a name="input_container_name"></a> [container\_name](#input\_container\_name) | The name of the storage container to use for the Terraform state | `string` | `"terraform-state"` | no |
+| <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Set to 'false' if using a limited user without permission to create a resource group. If false, assumes the resource group already exists and will read data instead of creating. | `bool` | `true` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to use for the Terraform state | `string` | `"centralus"` | no |
 | <a name="input_remove_secrets_from_state"></a> [remove\_secrets\_from\_state](#input\_remove\_secrets\_from\_state) | Whether to sanitize tfstate of access keys automatically created on created resources. Actual, assigned keys remain untouched on created assets. | `bool` | `true` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state | `string` | `"terraform-state"` | no |

@@ -51,3 +51,9 @@ variable "resource_provider_registrations" {
   description = "Set to 'none' if using a limited user without permission to do provider registrations"
   default     = null
 }
+
+variable "create_resource_group" {
+  type        = bool
+  description = "Set to 'false' if using a limited user without permission to create a resource group. If false, assumes the resource group already exists and will read data instead of creating."
+  default     = true
+}
