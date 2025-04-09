@@ -29,9 +29,6 @@ locals {
   storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
 }
 
-data "azurerm_subscription" "primary" {
-}
-
 data "azurerm_client_config" "current" {
 }
 

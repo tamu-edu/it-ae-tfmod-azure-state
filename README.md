@@ -99,7 +99,6 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/client_config) | data source |
 | [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/resource_group) | data source |
-| [azurerm_subscription.primary](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/subscription) | data source |
 
 ## Inputs
 
