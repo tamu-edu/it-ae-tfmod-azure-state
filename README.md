@@ -22,6 +22,15 @@ module "state_backend" {
   remove_secrets_from_state = false
 }
 
+
+# If you need to grant access to someone or something else (such as a service principal) you will need to change this code to allow this.
+# This block is optional if you need to grant additional access
+resource "azurerm_role_assignment" "tfstate_role_assignment" {
+  scope               = module.state_backend.storage_account.tfstate.id
+  role_definition_name  = "Storage Blob Data Contributor"
+  principal_id        = "<object id of entity you need to have access>" 
+}
+
 output "container_name" {
   value = module.state_backend.container_name
 }
@@ -33,7 +42,7 @@ output "storage_account_name" {
 }
 ```
 
-To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require.
+To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require. By default, this will assign the role "Storage Blob Data Contributor" on the identity that is used to create the module.
 
 > [!CAUTION]
 > The terraform statefile with an Azure storage account resource will contain the initial storage account access keys. It is best practice to _disable_ access key access in favor of Entra ID authentication for your storage accounts. Do not commit the statefile until either the access keys are removed, rotated, or access keys disabled.
@@ -49,7 +58,7 @@ Consider adding the following to your parent terraform IaC project `.gitignore` 
 This will ignore the `.tfstate` file in your project, which will use remote storage, but retain the `.tfstate` for the remote tfstate infrastructure.
 
 > [!NOTE]
-> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you.
+> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you. Additionally, if you have never done any resource provider registrations in a subscription, note that the first run of `terraform plan` or `terraform apply` may take quite some time as the provider will attempt to automatically do the provider registration.
 
 ## Requirements
 
@@ -76,12 +85,15 @@ No modules.
 | Name | Type |
 |------|------|
 | [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/resource_group) | resource |
+| [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/client_config) | data source |
 | [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/resource_group) | data source |
+| [azurerm_subscription.primary](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/data-sources/subscription) | data source |
 
 ## Inputs
 
