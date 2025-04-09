@@ -34,7 +34,7 @@ data "azurerm_client_config" "current" {
 
 
 resource "azurerm_resource_group" "tfstate" {
-  count =   try(var.create_resource_group ? 1 : 0, 0) 
+  count =   var.create_resource_group == true ? 1 : 0 
   name     = var.resource_group_name
   location = var.location
 
@@ -46,7 +46,7 @@ resource "azurerm_resource_group" "tfstate" {
 }
 
 data "azurerm_resource_group" "tfstate" {
-  count =   try(var.create_resource_group ? 0 : 1, 1) 
+  count =   var.create_resource_group == true ? 1 : 0 
   name     = var.resource_group_name
 }
 
@@ -123,14 +123,42 @@ resource "null_resource" "sanitize_state" {
   }
 }
 
+locals {
+
+  backend = <<BACKENDCONFIG
+  terraform {
+    backend "azurerm" {
+      use_cli              = true                                                       # Can also be set via `ARM_USE_CLI` environment variable.
+      use_azuread_auth     = true                                                       # Can also be set via `ARM_USE_AZUREAD` environment variable.
+      tenant_id            = "${data.azurerm_client_config.current.tenant_id}"          # Can also be set via `ARM_TENANT_ID` environment variable. Azure CLI will fallback to use the connected tenant ID if not supplied.
+      storage_account_name = "${azurerm_storage_account.tfstate.name}"                  # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+      container_name       = "${azurerm_storage_container.tfstate.name}"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+      key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+  }
+  BACKENDCONFIG
+}
+
+resource "local_file" "backend_config" {
+  content  = local.backend
+  filename = "${path.root}/./copy-me-and-rename-to-backend.tf"
+}
+
+output "backend_config" {
+  description = "Will contain a block of Terraform code that can be used to consume the created backend config."
+  value = local.backend
+}
+
 output "resource_group_name" {
+  description = "Will output the name of the resource group"
   value    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
 }
 
 output "storage_account_name" {
+  description = "Will output the storage account name"
   value = azurerm_storage_account.tfstate.name
 }
 
 output "container_name" {
+  description = "Will output the storage container name"
   value = azurerm_storage_container.tfstate.name
 }

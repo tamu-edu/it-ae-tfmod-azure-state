@@ -70,6 +70,10 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 > [!NOTE]
 > If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you. Additionally, if you have never done any resource provider registrations in a subscription, note that the first run of `terraform plan` or `terraform apply` may take quite some time as the provider will attempt to automatically do the provider registration.
 
+## Example consumption of created backend storage
+
+This module will create a file named `copy-me-and-rename-to-backend.tf` in the current directory in which it is run. You should copy this file into the directory where your Terraform is located that will consume this backend storage. Be sure to rename the key as needed. It will also create an output with this same content. Note that this is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+
 ## Requirements
 
 | Name | Version |
@@ -82,6 +86,7 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.26.0 |
+| <a name="provider_local"></a> [local](#provider\_local) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
@@ -94,6 +99,7 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 | [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
+| [local_file.backend_config](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
@@ -119,8 +125,10 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 
 | Name | Description |
 |------|-------------|
-| <a name="output_container_name"></a> [container\_name](#output\_container\_name) | n/a |
-| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
-| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | n/a |
+| <a name="output_backend_config"></a> [backend\_config](#output\_backend\_config) | Will contain a block of Terraform code that can be used to consume the created backend config. |
+| <a name="output_container_name"></a> [container\_name](#output\_container\_name) | Will output the storage container name |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
+| <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
+
 These output values will serve as your terraform IaC project inputs.
 <!-- END_TF_DOCS -->

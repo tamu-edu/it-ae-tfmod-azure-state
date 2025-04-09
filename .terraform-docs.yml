@@ -89,6 +89,10 @@ content: |-
   > [!NOTE]
   > If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you. Additionally, if you have never done any resource provider registrations in a subscription, note that the first run of `terraform plan` or `terraform apply` may take quite some time as the provider will attempt to automatically do the provider registration.
 
+  ## Example consumption of created backend storage
+
+  This module will create a file named `copy-me-and-rename-to-backend.tf` in the current directory in which it is run. You should copy this file into the directory where your Terraform is located that will consume this backend storage. Be sure to rename the key as needed. It will also create an output with this same content. Note that this is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+
   {{ .Requirements }}
 
   {{ .Providers }}
@@ -98,6 +102,7 @@ content: |-
   {{ .Inputs }}
 
   {{ .Outputs }}
+
   These output values will serve as your terraform IaC project inputs.
 
 output:
