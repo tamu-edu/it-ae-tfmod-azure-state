@@ -1,14 +1,22 @@
-# it-ae-tfmod-azure-state
-This is a terraform module for initializing a terraform state backend in Azure. 
-
-By default, it creates a resource group named `terraform-state`, a storage account with a unique name, and a container named "terraform-state", 
 <!-- BEGIN_TF_DOCS -->
+# it-ae-tfmod-azure-state
+
+This is a terraform module for initializing a terraform state backend in Azure.
+By default, it creates a resource group named `terraform-state`, a storage account with a unique name, and a container named "terraform-state".
+
+## Generation
+
+This file was generated with the following command:
+
+```bash
+terraform-docs .
+```
 
 ## Example usage
 
 A common pattern for using this is to create a folder within your terraform IaC project for setting up your environment, such as `/environments/{env_name}/setup`, containing a `main.tf` like:
 
-```
+```terraform
 module "state_backend" {
   source = "github.com/tamu-edu/it-ae-tfmod-azure-state?ref=v0.1.2"
 
@@ -48,13 +56,15 @@ To execute, first `az login` with an appropriately permissioned Azure account us
 > The terraform statefile with an Azure storage account resource will contain the initial storage account access keys. It is best practice to _disable_ access key access in favor of Entra ID authentication for your storage accounts. Do not commit the statefile until either the access keys are removed, rotated, or access keys disabled.
 
 Consider adding the following to your parent terraform IaC project `.gitignore` file:
-```
+
+```sh
 # .tfstate files
 *.tfstate
 *.tfstate.*
 !environments/*/setup/*.tfstate
 !environments/*/setup/*.tfstate.*
 ```
+
 This will ignore the `.tfstate` file in your project, which will use remote storage, but retain the `.tfstate` for the remote tfstate infrastructure.
 
 > [!NOTE]
@@ -75,10 +85,6 @@ This will ignore the `.tfstate` file in your project, which will use remote stor
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
-
-## Modules
-
-No modules.
 
 ## Resources
 
@@ -117,7 +123,5 @@ No modules.
 | <a name="output_container_name"></a> [container\_name](#output\_container\_name) | n/a |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | n/a |
-
 These output values will serve as your terraform IaC project inputs.
-
 <!-- END_TF_DOCS -->

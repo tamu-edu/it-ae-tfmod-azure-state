@@ -29,6 +29,13 @@ locals {
   storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
 }
 
+data "azurerm_subscription" "primary" {
+}
+
+data "azurerm_client_config" "current" {
+}
+
+
 resource "azurerm_resource_group" "tfstate" {
   count =   try(var.create_resource_group ? 1 : 0, 0) 
   name     = var.resource_group_name
@@ -74,6 +81,12 @@ resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
+}
+
+resource "azurerm_role_assignment" "tfstate_role_assignment" {
+  scope               = azurerm_storage_account.tfstate.id
+  role_definition_name  = "Storage Blob Data Contributor"
+  principal_id        = data.azurerm_client_config.current.object_id
 }
 
 resource "terraform_data" "always_run" {
