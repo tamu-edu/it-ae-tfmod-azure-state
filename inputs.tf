@@ -6,7 +6,7 @@ variable "storage_account_name" {
 
 variable "resource_group_name" {
   type        = string
-  description = "The name of the resource group to use for the Terraform state"
+  description = "The name of the resource group to use for the Terraform state. If `create_resource_group` is true, this will be the name of the created resource group. If `create_resource_group` is false, this module will find the existing resource group by that name."
   default     = "terraform-state"
 }
 
@@ -54,6 +54,6 @@ variable "resource_provider_registrations" {
 
 variable "create_resource_group" {
   type        = bool
-  description = "Set to 'false' if using a limited user without permission to create a resource group. If false, assumes the resource group already exists and will read data instead of creating."
+  description = "Whether to create or to attach to an existing resource group. See `resource_group_name`. Defaults to true."
   default     = true
 }
