@@ -124,7 +124,6 @@ resource "null_resource" "sanitize_state" {
 }
 
 locals {
-
   backend = <<BACKENDCONFIG
   terraform {
     backend "azurerm" {
@@ -136,9 +135,4 @@ locals {
       key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
   }
   BACKENDCONFIG
-}
-
-resource "local_file" "backend_config" {
-  content  = local.backend
-  filename = "${path.root}/./copy-me-and-rename-to-backend.tf"
 }

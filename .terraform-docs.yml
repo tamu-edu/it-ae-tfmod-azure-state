@@ -79,7 +79,16 @@ content: |-
 
   ## Example consumption of created backend storage
 
-  This module will create a file named `copy-me-and-rename-to-backend.tf` in the current directory in which it is run. You should copy this file into the directory where your Terraform is located that will consume this backend storage. Be sure to rename the key as needed. It will also create an output with this same content. Note that this is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+  Use the generated `backend_config` output to help you consume this generated tfstate "azurerm" Terraform backend storage. Note that it is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+
+  Your calling Terraform code could work with the output to automatically create (and manage) a standalone backend block file. In this example, the consuming Terraform code sits just above this tfstate setup folder:
+
+  ```terraform
+  resource "local_file" "backend_config" {
+    content  = local.backend
+    filename = "${path.root}/../backend.tf"
+  }
+  ```
 
   {{ .Requirements }}
 

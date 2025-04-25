@@ -60,7 +60,16 @@ To execute, first `az login` with an appropriately permissioned Azure account us
 
 ## Example consumption of created backend storage
 
-This module will create a file named `copy-me-and-rename-to-backend.tf` in the current directory in which it is run. You should copy this file into the directory where your Terraform is located that will consume this backend storage. Be sure to rename the key as needed. It will also create an output with this same content. Note that this is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+Use the generated `backend_config` output to help you consume this generated tfstate "azurerm" Terraform backend storage. Note that it is configured to use the `Azure Active Directory with Azure CLI` method for authentication as documented [here](https://developer.hashicorp.com/terraform/language/backend/azurerm#azure-active-directory-with-azure-cli). If you need a different method, you will need to edit it per that documentation.
+
+Your calling Terraform code could work with the output to automatically create (and manage) a standalone backend block file. In this example, the consuming Terraform code sits just above this tfstate setup folder:
+
+```terraform
+resource "local_file" "backend_config" {
+  content  = local.backend
+  filename = "${path.root}/../backend.tf"
+}
+```
 
 ## Requirements
 
@@ -74,7 +83,6 @@ This module will create a file named `copy-me-and-rename-to-backend.tf` in the c
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | =4.26.0 |
-| <a name="provider_local"></a> [local](#provider\_local) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
@@ -87,7 +95,6 @@ This module will create a file named `copy-me-and-rename-to-backend.tf` in the c
 | [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
-| [local_file.backend_config](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
