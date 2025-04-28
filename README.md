@@ -1,16 +1,7 @@
-<!-- BEGIN_TF_DOCS -->
 # it-ae-tfmod-azure-state
 
 This is a terraform module for initializing a terraform state backend in Azure.
 By default, it creates a resource group named `terraform-state`, a storage account with a unique name, and a container named "terraform-state".
-
-## Generation
-
-This file was generated with the following command:
-
-```bash
-terraform-docs .
-```
 
 ## Example usage
 
@@ -71,6 +62,7 @@ resource "local_file" "backend_config" {
 }
 ```
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -86,6 +78,10 @@ resource "local_file" "backend_config" {
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
+
+## Modules
+
+No modules.
 
 ## Resources
 
@@ -127,6 +123,6 @@ resource "local_file" "backend_config" {
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the tfstate storage account suitable for very broad scope string building (see container\_role\_access\_scope) |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
+<!-- END_TF_DOCS -->
 
 These output values will serve as your terraform IaC project inputs.
-<!-- END_TF_DOCS -->
