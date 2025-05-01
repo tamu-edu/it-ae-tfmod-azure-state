@@ -81,7 +81,7 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope               = azurerm_storage_account.tfstate.id
+  scope               = azurerm_storage_container.tfstate.id
   role_definition_name  = "Storage Blob Data Contributor"
   principal_id        = data.azurerm_client_config.current.object_id
 }
@@ -136,11 +136,6 @@ locals {
       key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
   }
   BACKENDCONFIG
-}
-
-resource "local_file" "backend_config" {
-  content  = local.backend
-  filename = "${path.root}/./copy-me-and-rename-to-backend.tf"
 }
 
 output "backend_config" {

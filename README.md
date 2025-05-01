@@ -34,7 +34,7 @@ module "state_backend" {
 # If you need to grant access to someone or something else (such as a service principal) you will need to change this code to allow this.
 # This block is optional if you need to grant additional access
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope               = module.state_backend.storage_account.tfstate.id
+  scope               = module.state_backend.storage_container.tfstate.id
   role_definition_name  = "Storage Blob Data Contributor"
   principal_id        = "<object id of entity you need to have access>" 
 }
@@ -48,9 +48,15 @@ output "resource_group_name" {
 output "storage_account_name" {
   value = module.state_backend.storage_account_name
 }
+
+output "backend_config" {
+  value = module.state_backend.backend
+}
 ```
 
-To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require. By default, this will assign the role "Storage Blob Data Contributor" on the identity that is used to create the module.
+Note: the output "backend_config" will contain sample Terraform code that can be included in downstream projects and consumed.
+
+To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require. By default, this will assign the role "Storage Blob Data Contributor" on the storage container to the identity that is used to create the module.
 
 > [!CAUTION]
 > The terraform statefile with an Azure storage account resource will contain the initial storage account access keys. It is best practice to _disable_ access key access in favor of Entra ID authentication for your storage accounts. Do not commit the statefile until either the access keys are removed, rotated, or access keys disabled.
@@ -86,7 +92,6 @@ This module will create a file named `copy-me-and-rename-to-backend.tf` in the c
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.26.0 |
-| <a name="provider_local"></a> [local](#provider\_local) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
@@ -99,7 +104,6 @@ This module will create a file named `copy-me-and-rename-to-backend.tf` in the c
 | [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
-| [local_file.backend_config](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [terraform_data.always_run](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
