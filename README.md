@@ -24,8 +24,8 @@ module "state_backend" {
 # Note: Azure does not automatically grant access to the storage account to its creator, so this module does.
 # To grant access to someone or something else (such as a service principal) you will need to implement your own role scope grant. Ex:
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope                = module.state_backend.container_role_access_scope
-  role_definition_name = "Storage Blob Data Contributor"
+  scope                = module.state_backend.azurerm_storage_container.tfstate.id
+  role_definition_name = "Storage Blob Data Owner"
   principal_id         = "<object id of entity you need to have access>"
 }
 
@@ -64,9 +64,7 @@ resource "local_file" "backend_config" {
   filename = "${path.root}/../backend.tf"
 }
 ```
-
-> [!NOTE]
->  Tthis document is generated with the command `terraform-docs markdown . --output-file README.md`
+[//]: # (This document is generated with the command `terraform-docs markdown . --output-file README.md`)
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -80,9 +78,9 @@ resource "local_file" "backend_config" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | =4.26.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.26.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
