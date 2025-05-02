@@ -62,6 +62,9 @@ resource "local_file" "backend_config" {
 }
 ```
 
+> [!NOTE]
+>  Tthis document is generated with the command `terraform-docs markdown . --output-file README.md`
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
