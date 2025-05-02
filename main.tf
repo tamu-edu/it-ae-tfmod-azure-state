@@ -81,7 +81,7 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope               = azurerm_storage_container.tfstate.id
+  scope               = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/${azurerm_storage_container.tfstate.name}"
   role_definition_name  = "Storage Blob Data Contributor"
   principal_id        = data.azurerm_client_config.current.object_id
 }
@@ -135,24 +135,4 @@ locals {
       key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
   }
   BACKENDCONFIG
-}
-
-output "backend_config" {
-  description = "Will contain a block of Terraform code that can be used to consume the created backend config."
-  value = local.backend
-}
-
-output "resource_group_name" {
-  description = "Will output the name of the resource group"
-  value    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
-}
-
-output "storage_account_name" {
-  description = "Will output the storage account name"
-  value = azurerm_storage_account.tfstate.name
-}
-
-output "container_name" {
-  description = "Will output the storage container name"
-  value = azurerm_storage_container.tfstate.name
 }
