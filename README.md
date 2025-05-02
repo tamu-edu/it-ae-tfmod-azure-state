@@ -26,7 +26,7 @@ module "state_backend" {
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
   scope                = module.state_backend.container_role_access_scope
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = "<object id of entity you need to have access>" 
+  principal_id         = "<object id of entity you need to have access>"
 }
 
 output "container_name" {
