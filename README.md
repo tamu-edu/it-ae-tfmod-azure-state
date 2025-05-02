@@ -22,9 +22,9 @@ module "state_backend" {
 }
 
 # Note: Azure does not automatically grant access to the storage account to its creator, so this module does.
-# To grant access to someone or something else (such as a service principal) you will need to implement your own role scope grant. Ex:
+# To grant access to someone or something else (such as a service principal) you will need to implement your own role scope grant. This example has Github pipeline usage in mind. Ex:
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope                = module.state_backend.azurerm_storage_container.tfstate.id
+  scope                = module.state_backend.container_role_access_scope
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = "<object id of entity you need to have access>"
 }
