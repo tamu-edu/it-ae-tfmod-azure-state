@@ -38,6 +38,9 @@ output "resource_group_name" {
 output "storage_account_name" {
   value = module.state_backend.storage_account_name
 }
+output "backend_config" {
+  value = module.state_backend.backend
+}
 ```
 
 To execute, first `az login` with an appropriately permissioned Azure account using the Azure CLI. Once logged in, run command `terraform init` within the new `terraform-state` folder. Then, run `terraform plan` to see what will be created. If satisfied with the results, run command `terraform apply`. This will create the appropriate Azure Blob Storage for holding state files for the main project. Azure Blobs are semaphore-locked from concurrent writes automatically. The state file for this remote state terraform script will be stored on the file system. Be sure to capture the results of the output (run `terraform output` to see it again) and copy it into your main Terraform stack variables. It is recommended to alter the name of the key to fit the granularity of separation of concerns that you require. By default, this will assign the role "Storage Blob Data Contributor" on the created tfstate container to the identity that runs this terraform.
