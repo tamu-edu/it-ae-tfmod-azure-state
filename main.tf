@@ -3,12 +3,13 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "=4.26.0"
     }
   }
 }
 
 provider "azurerm" {
+  resource_provider_registrations = var.resource_provider_registrations
   features {}
   client_id       = var.client_id
   subscription_id = var.subscription_id
@@ -28,7 +29,12 @@ locals {
   storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
 }
 
+data "azurerm_client_config" "current" {
+}
+
+
 resource "azurerm_resource_group" "tfstate" {
+  count =   var.create_resource_group == true ? 1 : 0
   name     = var.resource_group_name
   location = var.location
 
@@ -39,10 +45,23 @@ resource "azurerm_resource_group" "tfstate" {
   }
 }
 
+data "azurerm_resource_group" "tfstate" {
+  count =   var.create_resource_group == true ? 1 : 0
+  name     = var.resource_group_name
+}
+
 resource "azurerm_storage_account" "tfstate" {
   name                     = local.storage_account_name
-  resource_group_name      = azurerm_resource_group.tfstate.name
-  location                 = azurerm_resource_group.tfstate.location
+
+  # --- Conditional Attributes ---
+  # If create_resource_group is true, use the name from the created resource (at index 0).
+  # Otherwise, use the name from the data source (at index 0).
+  resource_group_name    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
+
+  # If create_resource_group is true, use the location from the created resource (at index 0).
+  # Otherwise, use the location from the data source (at index 0).
+  location               = var.create_resource_group ? azurerm_resource_group.tfstate[0].location : data.azurerm_resource_group.tfstate[0].location
+  # --- End Conditional Attributes ---
   account_tier             = "Standard"
   account_replication_type = "GRS"
 
@@ -57,8 +76,15 @@ resource "azurerm_storage_account" "tfstate" {
 
 resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
-  storage_account_name  = azurerm_storage_account.tfstate.name
+  storage_account_id    = azurerm_storage_account.tfstate.id
   container_access_type = "private"
+}
+
+resource "azurerm_role_assignment" "tfstate_role_assignment" {
+  #scope               = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/${azurerm_storage_container.tfstate.name}"
+  scope               = azurerm_storage_container.tfstate.id
+  role_definition_name  = "Storage Blob Data Owner"
+  principal_id        = data.azurerm_client_config.current.object_id
 }
 
 resource "terraform_data" "always_run" {
@@ -98,14 +124,16 @@ resource "null_resource" "sanitize_state" {
   }
 }
 
-output "resource_group_name" {
-  value = azurerm_resource_group.tfstate.name
-}
-
-output "storage_account_name" {
-  value = azurerm_storage_account.tfstate.name
-}
-
-output "container_name" {
-  value = azurerm_storage_container.tfstate.name
+locals {
+  backend = <<BACKENDCONFIG
+  terraform {
+    backend "azurerm" {
+      use_cli              = true                                                       # Can also be set via `ARM_USE_CLI` environment variable.
+      use_azuread_auth     = true                                                       # Can also be set via `ARM_USE_AZUREAD` environment variable.
+      tenant_id            = "${data.azurerm_client_config.current.tenant_id}"          # Can also be set via `ARM_TENANT_ID` environment variable. Azure CLI will fallback to use the connected tenant ID if not supplied.
+      storage_account_name = "${azurerm_storage_account.tfstate.name}"                  # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+      container_name       = "${azurerm_storage_container.tfstate.name}"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+      key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+  }
+  BACKENDCONFIG
 }
