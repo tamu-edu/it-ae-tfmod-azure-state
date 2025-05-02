@@ -9,7 +9,7 @@ A common pattern for using this is to create a folder within your terraform IaC 
 
 ```terraform
 module "state_backend" {
-  source = "github.com/tamu-edu/it-ae-tfmod-azure-state?ref=v0.1.2"
+  source = "github.com/tamu-edu/it-ae-tfmod-azure-state?ref=v0.2"
 
   container_name = "tfstate"
   location = "southcentralus"

@@ -81,7 +81,6 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  #scope               = "${azurerm_storage_account.tfstate.id}/blobServices/default/containers/${azurerm_storage_container.tfstate.name}"
   scope               = azurerm_storage_container.tfstate.id
   role_definition_name  = "Storage Blob Data Owner"
   principal_id        = data.azurerm_client_config.current.object_id
