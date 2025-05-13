@@ -34,7 +34,7 @@ data "azurerm_client_config" "current" {
 
 
 resource "azurerm_resource_group" "tfstate" {
-  count =   var.create_resource_group == true ? 1 : 0
+  count =   var.create_resource_group ? 1 : 0
   name     = var.resource_group_name
   location = var.location
 
@@ -46,8 +46,8 @@ resource "azurerm_resource_group" "tfstate" {
 }
 
 data "azurerm_resource_group" "tfstate" {
-  count =   var.create_resource_group == true ? 1 : 0
-  name     = var.resource_group_name
+  count = var.create_resource_group ? 0 : 1
+  name  = var.resource_group_name
 }
 
 resource "azurerm_storage_account" "tfstate" {
