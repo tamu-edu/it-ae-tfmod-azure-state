@@ -58,6 +58,12 @@ variable "create_resource_group" {
   default     = true
 }
 
+variable "tfstate_acl" {
+  type = bool
+  description = "Enables or Disabled the setup of an ACL for the blob storage account being created."
+  default = false
+}
+
 variable "tfstate_acl_default_action" {
   type = string
   description = "(Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow."

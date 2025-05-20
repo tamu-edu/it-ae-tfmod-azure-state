@@ -75,6 +75,7 @@ resource "azurerm_storage_account" "tfstate" {
 }
 
 resource "azurerm_storage_account_network_rules" "tfstate_acl" {
+  count = var.tfstate_acl == true ? 1 : 0
   storage_account_id = azurerm_storage_account.tfstate.id
   # ---- (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow.
   default_action     = var.tfstate_acl_default_action
