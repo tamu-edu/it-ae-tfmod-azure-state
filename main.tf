@@ -80,11 +80,12 @@ resource "azurerm_storage_container" "tfstate" {
   container_access_type = "private"
 }
 
-resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope               = azurerm_storage_container.tfstate.id
-  role_definition_name  = "Storage Blob Data Owner"
-  principal_id        = data.azurerm_client_config.current.object_id
-}
+# -- commit out duplicate scope that is set by github_oidc
+# resource "azurerm_role_assignment" "tfstate_role_assignment" {
+#   scope               = azurerm_storage_container.tfstate.id
+#   role_definition_name  = "Storage Blob Data Owner"
+#   principal_id        = data.azurerm_client_config.current.object_id
+# }
 
 resource "terraform_data" "always_run" {
   input = timestamp()
