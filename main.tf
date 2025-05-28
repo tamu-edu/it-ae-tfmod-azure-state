@@ -101,6 +101,7 @@ resource "terraform_data" "always_run" {
   input = timestamp()
 }
 
+# ---- Any resources that are added need to be added to the depends on array in the sanitize_state resource.  If resources are dependant, then only the sub-resources need to be added to the array.
 resource "null_resource" "sanitize_state" {
 
   count = var.remove_secrets_from_state ? 1 : 0
@@ -126,7 +127,7 @@ resource "null_resource" "sanitize_state" {
     EOT
   }
 
-  depends_on = [azurerm_storage_container.tfstate]
+  depends_on = [azurerm_role_assignment.tfstate_role_assignment]
 
 
   lifecycle {
