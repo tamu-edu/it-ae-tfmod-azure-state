@@ -78,9 +78,9 @@ resource "local_file" "backend_config" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.26.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.2.3 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | =4.26.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
@@ -94,6 +94,7 @@ No modules.
 | [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/resource_group) | resource |
 | [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account) | resource |
+| [azurerm_storage_account_network_rules.tfstate_acl](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_account_network_rules) | resource |
 | [azurerm_storage_container.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/4.26.0/docs/resources/storage_container) | resource |
 | [null_resource.sanitize_state](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
@@ -115,6 +116,10 @@ No modules.
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints. | `string` | `null` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | The subscription ID to use for the Terraform state | `string` | `null` | no |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | The tenant ID to use for the Terraform state | `string` | `null` | no |
+| <a name="input_tfstate_acl_bypass"></a> [tfstate\_acl\_bypass](#input\_tfstate\_acl\_bypass) | (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to ["AzureServices"]. | `list(string)` | `null` | no |
+| <a name="input_tfstate_acl_default_action"></a> [tfstate\_acl\_default\_action](#input\_tfstate\_acl\_default\_action) | (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow. | `string` | `"Deny"` | no |
+| <a name="input_tfstate_acl_enable"></a> [tfstate\_acl\_enable](#input\_tfstate\_acl\_enable) | Enables or Disabled the setup of an ACL for the blob storage account being created. | `bool` | `false` | no |
+| <a name="input_tfstate_acl_ip_rule"></a> [tfstate\_acl\_ip\_rule](#input\_tfstate\_acl\_ip\_rule) | (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed. | `list(string)` | `null` | no |
 
 ## Outputs
 

@@ -57,3 +57,27 @@ variable "create_resource_group" {
   description = "Whether to create or to attach to an existing resource group. See `resource_group_name`. Defaults to true."
   default     = true
 }
+
+variable "tfstate_acl_enable" {
+  type = bool
+  description = "Enables or Disabled the setup of an ACL for the blob storage account being created."
+  default = false
+}
+
+variable "tfstate_acl_default_action" {
+  type = string
+  description = "(Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow."
+  default = "Deny"
+}
+
+variable "tfstate_acl_ip_rule" {
+  type = list(string)
+  description = "(Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed."
+  default = null
+}
+
+variable "tfstate_acl_bypass" {
+  type = list(string)
+  description = " (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to [\"AzureServices\"]."
+  default = null
+}
