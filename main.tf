@@ -74,17 +74,6 @@ resource "azurerm_storage_account" "tfstate" {
   }
 }
 
-resource "azurerm_storage_account_network_rules" "tfstate_acl" {
-  count = var.tfstate_acl ? 1 : 0
-  storage_account_id = azurerm_storage_account.tfstate.id
-  # ---- (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow.
-  default_action     = var.tfstate_acl_default_action
-  # ----  (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed.
-  ip_rules           = var.tfstate_acl_ip_rule
-  # ---- (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to ["AzureServices"].
-  bypass             = var.tfstate_acl_bypass
-}
-
 resource "azurerm_storage_container" "tfstate" {
   name                  = var.container_name
   storage_account_id    = azurerm_storage_account.tfstate.id
@@ -95,6 +84,17 @@ resource "azurerm_role_assignment" "tfstate_role_assignment" {
   scope               = azurerm_storage_container.tfstate.id
   role_definition_name  = "Storage Blob Data Owner"
   principal_id        = data.azurerm_client_config.current.object_id
+}
+
+resource "azurerm_storage_account_network_rules" "tfstate_acl" {
+  count = var.tfstate_acl_enable ? 1 : 0
+  storage_account_id = azurerm_storage_account.tfstate.id
+  # ---- (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow.
+  default_action     = var.tfstate_acl_default_action
+  # ----  (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed.
+  ip_rules           = var.tfstate_acl_ip_rule
+  # ---- (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to ["AzureServices"].
+  bypass             = var.tfstate_acl_bypass
 }
 
 resource "terraform_data" "always_run" {
@@ -127,7 +127,7 @@ resource "null_resource" "sanitize_state" {
     EOT
   }
 
-  depends_on = [azurerm_role_assignment.tfstate_role_assignment]
+  depends_on = [azurerm_role_assignment.tfstate_role_assignment, azurerm_storage_account_network_rules.tfstate_acl]
 
 
   lifecycle {
