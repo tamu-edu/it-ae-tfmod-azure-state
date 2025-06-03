@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=4.26.0"
+      version = "~>4.31.0"
     }
   }
 }
@@ -97,41 +97,21 @@ resource "azurerm_storage_account_network_rules" "tfstate_acl" {
   bypass             = var.tfstate_acl_bypass
 }
 
-resource "terraform_data" "always_run" {
-  input = timestamp()
-}
-
 # ---- Any resources that are added need to be added to the depends on array in the sanitize_state resource.  If resources are dependant, then only the sub-resources need to be added to the array.
 resource "null_resource" "sanitize_state" {
 
-  count = var.remove_secrets_from_state ? 1 : 0
+  count = var.sanitize_state_secrets ? 1 : 0
 
   provisioner "local-exec" {
     command = <<EOT
-      # Check if jq is installed
-      if ! command -v jq &> /dev/null; then
-        echo "jq is required but was not found. Please install jq to continue and then re-run apply."
-        exit 1
-      fi
-      
-      # Sanitize the state file of private access keys:
-      jq 'del(.resources[].instances[].attributes [
-        "primary_access_key",
-        "primary_connection_string",
-        "primary_blob_connection_string",
-        "secondary_access_key",
-        "secondary_connection_string",
-        "secondary_blob_connection_string"
-      ])' terraform.tfstate > sanitized.tfstate
-      mv sanitized.tfstate terraform.tfstate
+      az storage account keys renew --resource-group ${azurerm_storage_account.tfstate.resource_group_name} --account-name ${azurerm_storage_account.tfstate.name} --key key1
+      az storage account keys renew --resource-group ${azurerm_storage_account.tfstate.resource_group_name} --account-name ${azurerm_storage_account.tfstate.name} --key key2
     EOT
   }
 
-  depends_on = [azurerm_role_assignment.tfstate_role_assignment, azurerm_storage_account_network_rules.tfstate_acl]
-
-
-  lifecycle {
-    replace_triggered_by = [ terraform_data.always_run ]
+  triggers = {
+    # Always run this resource to ensure the storage account keys are renewed to something different than what is known in tfstate.
+    always_run = "${timestamp()}"
   }
 }
 
