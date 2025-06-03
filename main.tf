@@ -111,7 +111,7 @@ resource "null_resource" "sanitize_state" {
 
   triggers = {
     # Always run this resource to ensure the storage account keys are renewed to something different than what is known in tfstate.
-    always_run = "${timestamp()}"
+    always_run = timestamp()
   }
 }
 
