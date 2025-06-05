@@ -40,9 +40,9 @@ variable "tenant_id" {
   default     = null
 }
 
-variable "remove_secrets_from_state" {
+variable "sanitize_state_secrets" {
   type = bool
-  description = "Whether to sanitize tfstate of access keys automatically created on created resources. Actual, assigned keys remain untouched on created assets."
+  description = "Whether to sanitize access keys on created blob storage resources automatically stored in tfstate by azurerm provider."
   default = true
 }
 
