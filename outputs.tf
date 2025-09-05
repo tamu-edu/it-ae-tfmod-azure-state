@@ -31,4 +31,5 @@ output "container_name" {
 
 output "container_role_access_scope" {
   value = [for ra in azurerm_role_assignment.tfstate_role_assignment : ra.scope]
+  description = "List of scope string(s) down to the tfstate storage container"
 }
