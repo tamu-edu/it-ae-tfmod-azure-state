@@ -25,14 +25,15 @@ resource "random_string" "storage_account_name" {
   upper   = false
 }
 
-locals {
-  storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
-}
-
 data "azurerm_client_config" "current" {
 }
-
-
+locals {
+  storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
+  blob_owner_object_ids = concat(
+    var.tfstate_entra_group_blob_owner_list,
+    [data.azurerm_client_config.current.object_id]
+  )
+}
 resource "azurerm_resource_group" "tfstate" {
   count =   var.create_resource_group ? 1 : 0
   name     = var.resource_group_name
@@ -81,9 +82,10 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
-  scope               = azurerm_storage_container.tfstate.id
-  role_definition_name  = "Storage Blob Data Owner"
-  principal_id        = data.azurerm_client_config.current.object_id
+  for_each             = toset(local.blob_owner_object_ids)
+  scope                = azurerm_storage_container.tfstate.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = each.value 
 }
 
 resource "azurerm_storage_account_network_rules" "tfstate_acl" {
