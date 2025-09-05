@@ -81,3 +81,9 @@ variable "tfstate_acl_bypass" {
   description = " (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to [\"AzureServices\"]."
   default = null
 }
+
+variable "tfstate_entra_group_blob_owner_list" {
+  type = list(string)
+  description = "(Optional) List of Entra ID group object IDs to assign the Storage Blob Data Owner role on the storage account."
+  default = null
+}
