@@ -29,8 +29,8 @@ data "azurerm_client_config" "current" {
 }
 locals {
   storage_account_name = var.storage_account_name == null ? "tfstate00${random_string.storage_account_name.result}" : var.storage_account_name
-    blob_owner_object_ids = concat(
-    var.tfstate_entra_group_blob_owner_list != null ? var.tfstate_entra_group_blob_owner_list : [],
+  blob_owner_object_ids = concat(
+    var.tfstate_entra_group_blob_owner_list,
     [data.azurerm_client_config.current.object_id]
   )
 }

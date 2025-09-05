@@ -121,6 +121,7 @@ No modules.
 | <a name="input_tfstate_acl_default_action"></a> [tfstate\_acl\_default\_action](#input\_tfstate\_acl\_default\_action) | (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow. | `string` | `"Deny"` | no |
 | <a name="input_tfstate_acl_enable"></a> [tfstate\_acl\_enable](#input\_tfstate\_acl\_enable) | Enables or Disabled the setup of an ACL for the blob storage account being created. | `bool` | `false` | no |
 | <a name="input_tfstate_acl_ip_rule"></a> [tfstate\_acl\_ip\_rule](#input\_tfstate\_acl\_ip\_rule) | (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed. | `list(string)` | `null` | no |
+| <a name="input_tfstate_entra_group_blob_owner_list"></a> [tfstate\_entra\_group\_blob\_owner\_list](#input\_tfstate\_entra\_group\_blob\_owner\_list) | (Optional) List of Entra ID group object IDs to assign the Storage Blob Data Owner role on the storage account.  Used to provide more then just the authors access to the blob container created by this module. | `list(string)` | `[]` | no |
 
 ## Outputs
 
@@ -129,7 +130,7 @@ No modules.
 | <a name="output_backend_config"></a> [backend\_config](#output\_backend\_config) | Will contain a block of Terraform code that can be used to consume the created backend config. |
 | <a name="output_container_id"></a> [container\_id](#output\_container\_id) | Will output the tfstate storage container id |
 | <a name="output_container_name"></a> [container\_name](#output\_container\_name) | Will output the tfstate storage container name |
-| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container |
+| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | n/a |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the tfstate storage account suitable for very broad scope string building (see container\_role\_access\_scope) |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
