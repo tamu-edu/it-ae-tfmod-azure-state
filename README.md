@@ -39,7 +39,7 @@ output "storage_account_name" {
   value = module.state_backend.storage_account_name
 }
 output "backend_config" {
-  value = module.state_backend.backend
+  value = module.state_backend.backend_config
 }
 ```
 
@@ -102,25 +102,28 @@ No modules.
 | [random_string.storage_account_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 | [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
+| [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_client_id"></a> [client\_id](#input\_client\_id) | The client ID to use for authenticating to Azure. Terraform authentication will overwrite this. | `string` | `null` | no |
-| <a name="input_container_name"></a> [container\_name](#input\_container\_name) | The name of the storage container to use for the Terraform state | `string` | `"terraform-state"` | no |
+| <a name="input_container_name"></a> [container\_name](#input\_container\_name) | The name of the storage container to use for the Terraform state | `string` | `null` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create or to attach to an existing resource group. See `resource_group_name`. Defaults to true. | `bool` | `true` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | The environment name to include for automatically named resources. | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to use for the Terraform state | `string` | `"centralus"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state. If `create_resource_group` is true, this will be the name of the created resource group. If `create_resource_group` is false, this module will find the existing resource group by that name. | `string` | `"terraform-state"` | no |
 | <a name="input_resource_provider_registrations"></a> [resource\_provider\_registrations](#input\_resource\_provider\_registrations) | Set to 'none' if using a limited user without permission to do provider registrations | `string` | `null` | no |
 | <a name="input_sanitize_state_secrets"></a> [sanitize\_state\_secrets](#input\_sanitize\_state\_secrets) | Whether to sanitize access keys on created blob storage resources automatically stored in tfstate by azurerm provider. | `bool` | `true` | no |
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints. | `string` | `null` | no |
-| <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | The subscription ID to use for the Terraform state | `string` | `null` | no |
+| <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | The subscription ID to use for the Terraform state | `string` | n/a | yes |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | The tenant ID to use for the Terraform state | `string` | `null` | no |
 | <a name="input_tfstate_acl_bypass"></a> [tfstate\_acl\_bypass](#input\_tfstate\_acl\_bypass) | (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to ["AzureServices"]. | `list(string)` | `null` | no |
 | <a name="input_tfstate_acl_default_action"></a> [tfstate\_acl\_default\_action](#input\_tfstate\_acl\_default\_action) | (Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow. | `string` | `"Deny"` | no |
 | <a name="input_tfstate_acl_enable"></a> [tfstate\_acl\_enable](#input\_tfstate\_acl\_enable) | Enables or Disabled the setup of an ACL for the blob storage account being created. | `bool` | `false` | no |
 | <a name="input_tfstate_acl_ip_rule"></a> [tfstate\_acl\_ip\_rule](#input\_tfstate\_acl\_ip\_rule) | (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed. | `list(string)` | `null` | no |
+| <a name="input_tfstate_key"></a> [tfstate\_key](#input\_tfstate\_key) | The key to use for the Terraform state (ie. the blob name within the container) | `string` | `null` | no |
 
 ## Outputs
 
@@ -136,3 +139,16 @@ No modules.
 <!-- END_TF_DOCS -->
 
 These output values will serve as your terraform IaC project inputs.
+
+> [!IMPORTANT]
+> **Upgrading from version 0.2?** 
+> 
+> Version 0.3 includes breaking changes that require manual state migration. Resource naming conventions have changed, and new features have been added.
+> 
+> **📖 Please review the [UPDATE.md](UPDATE.md) guide before upgrading to ensure a smooth transition.**
+> 
+> Key changes include:
+> - Storage container naming logic updates
+> - Resource group data source logic fixes  
+> - New network ACL controls
+> - State sanitization method changes

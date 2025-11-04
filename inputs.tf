@@ -1,3 +1,9 @@
+variable "environment" {
+  type        = string
+  description = "The environment name to include for automatically named resources."
+  default     = null
+}
+
 variable "storage_account_name" {
   type        = string
   description = "The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints."
@@ -19,7 +25,13 @@ variable "location" {
 variable "container_name" {
   type        = string
   description = "The name of the storage container to use for the Terraform state"
-  default     = "terraform-state"
+  default     = null
+}
+
+variable "tfstate_key" {
+  type        = string
+  description = "The key to use for the Terraform state (ie. the blob name within the container)"
+  default     = null
 }
 
 variable "client_id" {
@@ -31,7 +43,6 @@ variable "client_id" {
 variable "subscription_id" {
   type        = string
   description = "The subscription ID to use for the Terraform state"
-  default     = null
 }
 
 variable "tenant_id" {
