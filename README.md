@@ -139,3 +139,16 @@ No modules.
 <!-- END_TF_DOCS -->
 
 These output values will serve as your terraform IaC project inputs.
+
+> [!IMPORTANT]
+> **Upgrading from version 0.2?** 
+> 
+> Version 0.3 includes breaking changes that require manual state migration. Resource naming conventions have changed, and new features have been added.
+> 
+> **📖 Please review the [UPDATE.md](UPDATE.md) guide before upgrading to ensure a smooth transition.**
+> 
+> Key changes include:
+> - Storage container naming logic updates
+> - Resource group data source logic fixes  
+> - New network ACL controls
+> - State sanitization method changes
