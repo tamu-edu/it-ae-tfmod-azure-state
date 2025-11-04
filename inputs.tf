@@ -25,7 +25,13 @@ variable "location" {
 variable "container_name" {
   type        = string
   description = "The name of the storage container to use for the Terraform state"
-  default     = "terraform-state"
+  default     = null
+}
+
+variable "tfstate_key" {
+  type        = string
+  description = "The key to use for the Terraform state (ie. the blob name within the container)"
+  default     = null
 }
 
 variable "client_id" {
@@ -37,7 +43,6 @@ variable "client_id" {
 variable "subscription_id" {
   type        = string
   description = "The subscription ID to use for the Terraform state"
-  default     = null
 }
 
 variable "tenant_id" {

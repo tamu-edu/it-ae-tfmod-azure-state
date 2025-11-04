@@ -26,10 +26,12 @@ resource "random_string" "storage_account_name" {
 }
 
 locals {
-  environment_str = var.environment != null ? lower(var.environment) : ""
+  environment_str      = var.environment != null ? lower(var.environment) : ""
   storage_account_name = var.storage_account_name != null ? var.storage_account_name : (
-    substr("tfst${local.environment_str}${random_string.storage_account_name.result}", 0, 24)
+    substr("tfstate00${local.environment_str}${random_string.storage_account_name.result}", 0, 24)
   )
+  container_name       = var.container_name != null ? var.container_name : "terraform-state${local.environment_str != "" ? "-${local.environment_str}" : ""}"
+  tfstate_key          = var.tfstate_key != null ? var.tfstate_key : "terraform${local.environment_str != "" ? "-${local.environment_str}" : ""}.tfstate"
 }
 
 data "azurerm_client_config" "current" {
@@ -78,7 +80,7 @@ resource "azurerm_storage_account" "tfstate" {
 }
 
 resource "azurerm_storage_container" "tfstate" {
-  name                  = var.container_name
+  name                  = local.container_name
   storage_account_id    = azurerm_storage_account.tfstate.id
   container_access_type = "private"
 }
@@ -118,16 +120,22 @@ resource "null_resource" "sanitize_state" {
   }
 }
 
+data "azurerm_subscription" "current" {
+  subscription_id = var.subscription_id
+}
+
 locals {
   backend = <<BACKENDCONFIG
   terraform {
     backend "azurerm" {
-      use_cli              = true                                                       # Can also be set via `ARM_USE_CLI` environment variable.
-      use_azuread_auth     = true                                                       # Can also be set via `ARM_USE_AZUREAD` environment variable.
-      tenant_id            = "${data.azurerm_client_config.current.tenant_id}"          # Can also be set via `ARM_TENANT_ID` environment variable. Azure CLI will fallback to use the connected tenant ID if not supplied.
-      storage_account_name = "${azurerm_storage_account.tfstate.name}"                  # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-      container_name       = "${azurerm_storage_container.tfstate.name}"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
-      key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+      use_cli              = true
+      use_azuread_auth     = true
+      subscription_id      = "${data.azurerm_subscription.current.subscription_id}" # ${data.azurerm_subscription.current.display_name}
+      tenant_id            = "${data.azurerm_client_config.current.tenant_id}"
+      storage_account_name = "${azurerm_storage_account.tfstate.name}"
+      container_name       = "${azurerm_storage_container.tfstate.name}"
+      key                  = "${local.tfstate_key}"
+    }
   }
   BACKENDCONFIG
 }
