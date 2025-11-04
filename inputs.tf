@@ -1,3 +1,9 @@
+variable "environment" {
+  type        = string
+  description = "The environment name to include for automatically named resources."
+  default     = null
+}
+
 variable "storage_account_name" {
   type        = string
   description = "The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints."
