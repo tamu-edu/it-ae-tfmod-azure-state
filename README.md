@@ -1,24 +1,17 @@
-# it-ae-tfmod-azure-state
+# Azure Terraform State Backend Module
 
-This is a terraform module for initializing a terraform state backend in Azure.
-By default, it creates a resource group named `terraform-state`, a storage account with a unique name, and a container named "terraform-state".
+This module creates an Azure Storage Account and container for storing Terraform state files. It requires an existing Azure Resource Group.
 
 ## Example usage
 
-A common pattern for using this is to create a folder within your terraform IaC project for setting up your environment, such as `/environments/{env_name}/setup`, containing a `main.tf` like:
+### Basic Example with Resource Group Creation
 
-```terraform
-module "state_backend" {
-  source = "github.com/tamu-edu/it-ae-tfmod-azure-state?ref=v0.2"
-
-  container_name = "tfstate"
+```hcl
+# Create a resource group for the state backend
+resource "azurerm_resource_group" "tfstate" {
+  name     = "rg-terraform-state-dev"
   location = "southcentralus"
-  resource_group_name = "your-project-tfstate-dev"
-  # storage_account_name = "LeaveBlankToAutoGen"
-  subscription_id = "f5358b4a-0a02-4485-8157-367fc107a27d"
-  tenant_id = "68f381e3-46da-47b9-ba57-6f322b8f0da1"
 
-  remove_secrets_from_state = false
 }
 
 # Note: Azure does not automatically grant access to the storage account to its creator, so this module does.
@@ -50,10 +43,10 @@ To execute, first `az login` with an appropriately permissioned Azure account us
 >
 > By default, this module sanitizes the tfstate file secure access keys for you. Toggle the input `sanitize_state_secrets` to `false` to prevent this behavior.
 
-**Background:** The azurerm provider always stores access keys in tfstate whether or not key access is enabled, and if they keys change, Terraform will silently update tfstate with the new keys even when no resource plan/change is reported. This module lets the access keys get written and then issues a key rotation request via az cli. The keys stored in tfstate are orphaned and useless.
+**Background:** The azurerm provider _always_ stores access keys in tfstate whether or not key access is enabled, and if they keys change, Terraform will silently update tfstate with the new keys even when no resource plan/change is reported. This module lets the access keys get written and then issues a key rotation request via az cli. The keys stored in tfstate are orphaned and useless.
 
 > [!NOTE]
-> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. You may also want to set the value of `create_resource_group` to `false` if the resource group has already been created for you. Additionally, if you have never done any resource provider registrations in a subscription, note that the first run of `terraform plan` or `terraform apply` may take quite some time as the provider will attempt to automatically do the provider registration.
+> If you are using an identity that has limited access to the Azure subscription, be sure to set the value of `resource_provider_registrations` to `none`. If this is the case, you will also need to work with someone who has owner access to the subscription to enable provider registration for all the API's that you may need to use. Additionally, if you have never done any resource provider registrations in a subscription, note that the first run of `terraform plan` or `terraform apply` may take quite some time as the provider will attempt to automatically do the provider registration.
 
 ## Example consumption of created backend storage
 
@@ -93,7 +86,6 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [azurerm_resource_group.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [azurerm_role_assignment.tfstate_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.tfstate](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [azurerm_storage_account_network_rules.tfstate_acl](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account_network_rules) | resource |
@@ -109,9 +101,8 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_client_id"></a> [client\_id](#input\_client\_id) | The client ID to use for authenticating to Azure. Terraform authentication will overwrite this. | `string` | `null` | no |
 | <a name="input_container_name"></a> [container\_name](#input\_container\_name) | The name of the storage container to use for the Terraform state | `string` | `"terraform-state"` | no |
-| <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create or to attach to an existing resource group. See `resource_group_name`. Defaults to true. | `bool` | `true` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to use for the Terraform state | `string` | `"centralus"` | no |
-| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state. If `create_resource_group` is true, this will be the name of the created resource group. If `create_resource_group` is false, this module will find the existing resource group by that name. | `string` | `"terraform-state"` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the existing resource group to use for the Terraform state. | `string` | `"terraform-state"` | no |
 | <a name="input_resource_provider_registrations"></a> [resource\_provider\_registrations](#input\_resource\_provider\_registrations) | Set to 'none' if using a limited user without permission to do provider registrations | `string` | `null` | no |
 | <a name="input_sanitize_state_secrets"></a> [sanitize\_state\_secrets](#input\_sanitize\_state\_secrets) | Whether to sanitize access keys on created blob storage resources automatically stored in tfstate by azurerm provider. | `bool` | `true` | no |
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints. | `string` | `null` | no |
@@ -130,7 +121,8 @@ No modules.
 | <a name="output_container_id"></a> [container\_id](#output\_container\_id) | Will output the tfstate storage container id |
 | <a name="output_container_name"></a> [container\_name](#output\_container\_name) | Will output the tfstate storage container name |
 | <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container |
-| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
+| <a name="output_resource_group_location"></a> [resource\_group\_location](#output\_resource\_group\_location) | n/a |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | n/a |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the tfstate storage account suitable for very broad scope string building (see container\_role\_access\_scope) |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
 <!-- END_TF_DOCS -->
