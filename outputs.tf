@@ -1,12 +1,14 @@
-
 output "backend_config" {
   description = "Will contain a block of Terraform code that can be used to consume the created backend config."
   value = local.backend
 }
 
 output "resource_group_name" {
-  description = "Will output the name of the resource group"
-  value    = var.create_resource_group ? azurerm_resource_group.tfstate[0].name : data.azurerm_resource_group.tfstate[0].name
+  value = data.azurerm_resource_group.tfstate.name
+}
+
+output "resource_group_location" {
+  value = data.azurerm_resource_group.tfstate.location
 }
 
 output "storage_account_id" {
