@@ -40,12 +40,6 @@ variable "tenant_id" {
   default     = null
 }
 
-variable "sanitize_state_secrets" {
-  type        = bool
-  description = "Whether to sanitize access keys on created blob storage resources automatically stored in tfstate by azurerm provider."
-  default     = true
-}
-
 variable "resource_provider_registrations" {
   type        = string
   description = "Set to 'none' if using a limited user without permission to do provider registrations"
