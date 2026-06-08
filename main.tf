@@ -62,6 +62,7 @@ resource "azurerm_storage_account" "tfstate" {
   # Otherwise, use the location from the data source (at index 0).
   location = var.create_resource_group ? azurerm_resource_group.tfstate[0].location : data.azurerm_resource_group.tfstate[0].location
   # --- End Conditional Attributes ---
+  
   account_tier             = "Standard"
   account_replication_type = "GRS"
 
@@ -94,37 +95,5 @@ resource "azurerm_storage_account_network_rules" "tfstate_acl" {
   # ----  (Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed.
   ip_rules = var.tfstate_acl_ip_rule
   # ---- (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to ["AzureServices"].
-  bypass             = var.tfstate_acl_bypass
-}
-
-# ---- Any resources that are added need to be added to the depends on array in the sanitize_state resource.  If resources are dependant, then only the sub-resources need to be added to the array.
-resource "null_resource" "sanitize_state" {
-
-  count = var.sanitize_state_secrets ? 1 : 0
-
-  provisioner "local-exec" {
-    command = <<EOT
-      az storage account keys renew --resource-group ${azurerm_storage_account.tfstate.resource_group_name} --account-name ${azurerm_storage_account.tfstate.name} --key key1
-      az storage account keys renew --resource-group ${azurerm_storage_account.tfstate.resource_group_name} --account-name ${azurerm_storage_account.tfstate.name} --key key2
-    EOT
-  }
-
-  triggers = {
-    # Always run this resource to ensure the storage account keys are renewed to something different than what is known in tfstate.
-    always_run = timestamp()
-  }
-}
-
-locals {
-  backend = <<BACKENDCONFIG
-  terraform {
-    backend "azurerm" {
-      use_cli              = true                                                       # Can also be set via `ARM_USE_CLI` environment variable.
-      use_azuread_auth     = true                                                       # Can also be set via `ARM_USE_AZUREAD` environment variable.
-      tenant_id            = "${data.azurerm_client_config.current.tenant_id}"          # Can also be set via `ARM_TENANT_ID` environment variable. Azure CLI will fallback to use the connected tenant ID if not supplied.
-      storage_account_name = "${azurerm_storage_account.tfstate.name}"                  # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-      container_name       = "${azurerm_storage_container.tfstate.name}"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
-      key                  = "<name key according to Azure blob naming rules>.tfstate"  # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
-  }
-  BACKENDCONFIG
+  bypass = var.tfstate_acl_bypass
 }

@@ -1,7 +1,11 @@
-
-output "backend_config" {
-  description = "Will contain a block of Terraform code that can be used to consume the created backend config."
-  value = local.backend
+output "terraform_backend_template" {
+  description = "A string containing a partial terraform backend specification with a placeholder for the key (i.e. path inside the container)."
+  value = templatefile("${path.module}/templates/backend.tftpl", {
+    tenant_id            = "${data.azurerm_client_config.current.tenant_id}"
+    storage_account_name = "${azurerm_storage_account.tfstate.name}"
+    container_name       = "${azurerm_storage_container.tfstate.name}"
+    key                  = "$${key}"
+  })
 }
 
 output "resource_group_name" {
