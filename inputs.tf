@@ -41,9 +41,9 @@ variable "tenant_id" {
 }
 
 variable "sanitize_state_secrets" {
-  type = bool
+  type        = bool
   description = "Whether to sanitize access keys on created blob storage resources automatically stored in tfstate by azurerm provider."
-  default = true
+  default     = true
 }
 
 variable "resource_provider_registrations" {
@@ -59,25 +59,25 @@ variable "create_resource_group" {
 }
 
 variable "tfstate_acl_enable" {
-  type = bool
+  type        = bool
   description = "Enables or Disabled the setup of an ACL for the blob storage account being created."
-  default = false
+  default     = false
 }
 
 variable "tfstate_acl_default_action" {
-  type = string
+  type        = string
   description = "(Required) Specifies the default action of allow or deny when no other rules match. Valid options are Deny or Allow."
-  default = "Deny"
+  default     = "Deny"
 }
 
 variable "tfstate_acl_ip_rule" {
-  type = list(string)
+  type        = list(string)
   description = "(Optional) List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges (as defined in RFC 1918) are not allowed."
-  default = null
+  default     = null
 }
 
 variable "tfstate_acl_bypass" {
-  type = list(string)
+  type        = list(string)
   description = " (Optional) Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. Defaults to [\"AzureServices\"]."
-  default = null
+  default     = null
 }
