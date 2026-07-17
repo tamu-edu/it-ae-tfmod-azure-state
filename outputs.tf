@@ -35,5 +35,5 @@ output "container_name" {
 
 output "container_role_access_scope" {
   description = "Complete scope string down to the tfstate storage container"
-  value       = azurerm_role_assignment.tfstate_role_assignment.scope
+  value       = azurerm_storage_container.tfstate.id
 }
