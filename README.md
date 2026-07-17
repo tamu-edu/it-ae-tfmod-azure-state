@@ -151,7 +151,7 @@ No modules.
 |------|-------------|
 | <a name="output_container_id"></a> [container\_id](#output\_container\_id) | Will output the tfstate storage container id |
 | <a name="output_container_name"></a> [container\_name](#output\_container\_name) | Will output the tfstate storage container name |
-| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container |
+| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container. This is the container resource ID, which is the appropriate scope for role assignments on the container. |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the tfstate storage account suitable for very broad scope string building (see container\_role\_access\_scope) |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
