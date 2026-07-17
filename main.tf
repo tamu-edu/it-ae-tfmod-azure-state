@@ -82,9 +82,10 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_role_assignment" "tfstate_role_assignment" {
+  for_each             = toset(var.storage_account_contributors)
   scope                = azurerm_storage_container.tfstate.id
   role_definition_name = "Storage Blob Data Owner"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = each.value
 }
 
 resource "azurerm_storage_account_network_rules" "tfstate_acl" {

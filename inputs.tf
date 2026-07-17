@@ -75,3 +75,13 @@ variable "tfstate_acl_bypass" {
   description = "Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None."
   default     = ["AzureServices"]
 }
+
+variable "storage_account_contributors" {
+  type        = list(string)
+  description = "List of principal object IDs to assign the 'Storage Blob Data Owner' role on the tfstate storage container. At least one principal must be provided to ensure access to the storage account."
+
+  validation {
+    condition     = length(var.storage_account_contributors) > 0
+    error_message = "At least one principal object ID must be provided in storage_account_contributors to ensure access to the storage account."
+  }
+}

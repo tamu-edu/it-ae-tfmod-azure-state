@@ -22,6 +22,10 @@ module "state_backend" {
   resource_group_name = "myproject-prod-tfstate"
   tenant_id           = local.tenant_id
   subscription_id     = local.subscription_id
+
+  storage_account_contributors = [
+    "<object id of user or service principal that needs access>",
+  ]
 }
 
 # This stores this [setup] module's state file at "terraform-state/bootstrap/prod.tfstate"
@@ -65,12 +69,22 @@ $ terraform init -migrate-state # moves the local state to the new remote backen
 > [!NOTE]
 > When a storage account is created outside the Azure portal, full access is not automatically granted to the creator.
 
-This module will grant the calling principal (i.e. a `User`) the "Storage Blob Data Owner" role on the storage account. This allows the creator to manage the storage account itself, and access the data plane of the storage account (i.e. the blob storage).
-
-To grant access to someone or something else (such as a service principal) you will need to add additional role assignments.
+This module requires you to explicitly provide a list of principal object IDs via the `storage_account_contributors` variable. Each principal will be assigned the "Storage Blob Data Owner" role on the tfstate storage container, granting them full management and data-plane access.
 
 ```hcl
-resource "azurerm_role_assignment" "tfstate_role_assignment" {
+module "state_backend" {
+  # ...
+  storage_account_contributors = [
+    "<object id of user or service principal>",
+    "<object id of another principal>",
+  ]
+}
+```
+
+To grant access to additional principals without "Storage Blob Data Owner" (such as read-only consumers), add separate role assignments:
+
+```hcl
+resource "azurerm_role_assignment" "extra_contributor" {
   scope                = module.state_backend.container_role_access_scope
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = "<object id of principal you need to grant access to>"
@@ -122,6 +136,7 @@ No modules.
 | <a name="input_location"></a> [location](#input\_location) | The location to use for the Terraform state | `string` | `"centralus"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to use for the Terraform state. If `create_resource_group` is true, this will be the name of the created resource group. If `create_resource_group` is false, this module will find the existing resource group by that name. | `string` | `"terraform-state"` | no |
 | <a name="input_resource_provider_registrations"></a> [resource\_provider\_registrations](#input\_resource\_provider\_registrations) | Set to 'none' if using a limited user without permission to do provider registrations | `string` | `null` | no |
+| <a name="input_storage_account_contributors"></a> [storage\_account\_contributors](#input\_storage\_account\_contributors) | List of principal object IDs to assign the 'Storage Blob Data Owner' role on the tfstate storage container. At least one principal must be provided to ensure access to the storage account. | `list(string)` | n/a | yes |
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the storage account to use for the Terraform state. Leave blank to let Terraform manage a globally unique name to fit Azure constraints. | `string` | `null` | no |
 | <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id) | The subscription ID to use for the Terraform state | `string` | `null` | no |
 | <a name="input_tenant_id"></a> [tenant\_id](#input\_tenant\_id) | The tenant ID to use for the Terraform state | `string` | `null` | no |
@@ -136,7 +151,7 @@ No modules.
 |------|-------------|
 | <a name="output_container_id"></a> [container\_id](#output\_container\_id) | Will output the tfstate storage container id |
 | <a name="output_container_name"></a> [container\_name](#output\_container\_name) | Will output the tfstate storage container name |
-| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container |
+| <a name="output_container_role_access_scope"></a> [container\_role\_access\_scope](#output\_container\_role\_access\_scope) | Complete scope string down to the tfstate storage container. This is the container resource ID, which is the appropriate scope for role assignments on the container. |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | Will output the name of the resource group |
 | <a name="output_storage_account_id"></a> [storage\_account\_id](#output\_storage\_account\_id) | ID of the tfstate storage account suitable for very broad scope string building (see container\_role\_access\_scope) |
 | <a name="output_storage_account_name"></a> [storage\_account\_name](#output\_storage\_account\_name) | Will output the storage account name |
